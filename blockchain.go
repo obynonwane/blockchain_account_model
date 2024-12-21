@@ -38,6 +38,13 @@ type Blockchain struct {
 	chain           []*Block
 }
 
+func NewBlockchain() *Blockchain {
+	bc := new(Blockchain)
+	bc.CreateBlock(0, "init hash")
+	return bc
+
+}
+
 // create a blockchain by
 // a. creating a new block, using the nonce and previoushash
 // b. appending the new block to the chain
@@ -48,13 +55,20 @@ func (bc *Blockchain) CreateBlock(nonce int, previousHash string) *Block {
 	return b
 }
 
+func (bc *Blockchain) Print() {
+	for i, block := range bc.chain {
+		fmt.Printf("chain %d \n", i)
+		block.Print()
+	}
+}
+
 func init() {
 	log.SetPrefix("Blockchain: ")
 }
 func main() {
 	// main function initialise and create the first block
 	// with a nonce of 0 and initail hash
-	b := NewBlock(0, "init hash")
-	b.Print()
+	blockChain := NewBlockchain()
+	blockChain.Print()
 
 }
