@@ -1,4 +1,4 @@
-package main
+package block
 
 import (
 	"crypto/sha256"
@@ -12,7 +12,12 @@ import (
 
 // 1. sha256 - Hash algorithm
 
-const MINING_DIFFICULTY = 3
+// declared constants
+const (
+	MINING_DIFFICULTY = 3
+	MINING_SENDER     = "THE BLOCKCHAIN"
+	MINING_REWARD     = 1.0
+)
 
 // block struct
 type Block struct {
@@ -45,13 +50,15 @@ func (b *Block) Print() {
 
 // creating the blochain
 type Blockchain struct {
-	transactionPool []*Transaction
-	chain           []*Block
+	transactionPool   []*Transaction
+	chain             []*Block
+	blockchainAddress string
 }
 
-func NewBlockchain() *Blockchain {
+func NewBlockchain(blockchainAddress string) *Blockchain {
 	b := &Block{}
 	bc := new(Blockchain)
+	bc.blockchainAddress = blockchainAddress
 	bc.CreateBlock(0, b.Hash())
 	return bc
 
@@ -110,7 +117,7 @@ func (bc *Blockchain) ValidProof(nonce int, previousHash [32]byte, transactions 
 	return guessHashStr[:difficulty] == zeros
 }
 
-// return the nonce value
+// return the nonce value - calculate nonce
 func (bc *Blockchain) ProofOfWork() int {
 	// copy transaction from pool
 	transactions := bc.CopyTransactionPool()
@@ -129,6 +136,33 @@ func (bc *Blockchain) ProofOfWork() int {
 
 	// return the nonce to the calling function
 	return nonce
+}
+
+// function for mining - sending the blockchain reward to miners
+func (bc *Blockchain) Mining() bool {
+	bc.AddTransaction(MINING_SENDER, bc.blockchainAddress, MINING_REWARD)
+	nonce := bc.ProofOfWork()
+	previousHash := bc.LastBlock().Hash()
+	bc.CreateBlock(nonce, previousHash)
+	log.Println("action=mining, status=success")
+	return true
+}
+
+// calculate the total amount
+func (bc *Blockchain) CalculateTotalAmount(blockchainAddress string) float32 {
+	var totalAmount float32 = 0.0
+	for _, b := range bc.chain {
+		for _, t := range b.transactions {
+			value := t.value
+			if blockchainAddress == t.recipientBlockchainAddress {
+				totalAmount += value
+			}
+			if blockchainAddress == t.senderBlockchainAddress {
+				totalAmount -= value
+			}
+		}
+	}
+	return totalAmount
 }
 
 // struct for transaction
@@ -188,28 +222,4 @@ func (b *Block) MarshalJSON() ([]byte, error) {
 		PreviousHash: b.previousHash,
 		Transactions: b.transactions,
 	})
-}
-
-func init() {
-	log.SetPrefix("Blockchain: ")
-}
-func main() {
-
-	// main function initialise and create the first block
-	// with a nonce of 0 and initail hash
-	blockChain := NewBlockchain() // init block
-
-	// subsequent blocks
-	blockChain.AddTransaction("A", "B", 1.2)
-	previousHash := blockChain.LastBlock().Hash()
-	nonce := blockChain.ProofOfWork()
-	blockChain.CreateBlock(nonce, previousHash)
-
-	blockChain.AddTransaction("C", "D", 5.2)
-	blockChain.AddTransaction("E", "G", 10.2)
-	previousHash = blockChain.LastBlock().Hash()
-	nonce = blockChain.ProofOfWork()
-	blockChain.CreateBlock(nonce, previousHash)
-	blockChain.Print()
-
 }
