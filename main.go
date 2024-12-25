@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/obynonwane/blockchain_account_model/block"
 	"github.com/obynonwane/blockchain_account_model/wallet"
 )
 
@@ -11,10 +12,14 @@ func init() {
 	log.SetPrefix("Blockchain: ")
 }
 func main() {
-	w := wallet.NewWallet()
-	fmt.Println(w.PrivateKeyStr())
-	fmt.Println(w.PublicKeyStr())
-	fmt.Println(w.BlockchainAddress())
-	t := wallet.NewTrandaction(w.PrivateKey(), w.PublicKey(), w.BlockchainAddress(), "B", 1.0)
-	fmt.Println("signature %s \n", t.GenerateSignature())
+	walletM := wallet.NewWallet()
+	walletA := wallet.NewWallet()
+	walletB := wallet.NewWallet()
+
+	t := wallet.NewTrandaction(walletA.PrivateKey(), walletA.PublicKey(), walletA.BlockchainAddress(), walletB.BlockchainAddress(), 1.0)
+	fmt.Printf("signature %s \n", t.GenerateSignature())
+
+	//Blockchain
+	blockchain := block.NewBlockchain(walletM.BlockchainAddress())
+	isAdded := blockchain.AddTransaction(walletA.BlockchainAddress(), walletB.BlockchainAddress(), 1.0, walletA.PublicKey(), t.GenerateSignature())
 }

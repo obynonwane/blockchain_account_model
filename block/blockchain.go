@@ -1,6 +1,7 @@
 package block
 
 import (
+	"crypto/ecdsa"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
@@ -8,6 +9,8 @@ import (
 	"strings"
 
 	"time"
+
+	"github.com/obynonwane/blockchain_account_model/utils"
 )
 
 // 1. sha256 - Hash algorithm
@@ -91,10 +94,34 @@ func (bc *Blockchain) Print() {
 	fmt.Printf("%s\n", strings.Repeat("*", 25))
 }
 
-// function to add transaction to transaction pool
-func (bc *Blockchain) AddTransaction(sender, recipient string, value float32) {
+// function to add transaction to transaction pool after verifying the transaction
+func (bc *Blockchain) AddTransaction(sender, recipient string, value float32, senderPublicKey *ecdsa.PublicKey, s *utils.Signature) bool {
 	t := NewTransaction(sender, recipient, value)
-	bc.transactionPool = append(bc.transactionPool, t)
+
+	// if the sender is a miner no need for signature
+	if sender == MINING_SENDER {
+		bc.transactionPool = append(bc.transactionPool, t)
+		return true
+	}
+
+	if bc.VerifyTransactionSignature(senderPublicKey, s, t) {
+		bc.transactionPool = append(bc.transactionPool, t)
+		return true
+	} else {
+		log.Println("ERROR: Verify Transaction")
+	}
+
+	return false
+}
+
+// verify the transaction
+// senderPublicKey : sender public key
+// s : sender signature
+// t : the transaction been executed
+func (bc *Blockchain) VerifyTransactionSignature(senderPublicKey *ecdsa.PublicKey, s *utils.Signature, t *Transaction) bool {
+	m, _ := json.Marshal(t)
+	h := sha256.Sum256(m)
+	return ecdsa.Verify(senderPublicKey, h[:], s.R, s.S)
 }
 
 // function to copy transaction
@@ -139,8 +166,10 @@ func (bc *Blockchain) ProofOfWork() int {
 }
 
 // function for mining - sending the blockchain reward to miners
+// this function is for rewarding miners
 func (bc *Blockchain) Mining() bool {
-	bc.AddTransaction(MINING_SENDER, bc.blockchainAddress, MINING_REWARD)
+
+	bc.AddTransaction(MINING_SENDER, bc.blockchainAddress, MINING_REWARD, nil, nil)
 	nonce := bc.ProofOfWork()
 	previousHash := bc.LastBlock().Hash()
 	bc.CreateBlock(nonce, previousHash)

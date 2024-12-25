@@ -7,9 +7,11 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"math/big"
+
+	"github.com/obynonwane/blockchain_account_model/utils"
 
 	"github.com/btcsuite/btcutil/base58"
+
 	"golang.org/x/crypto/ripemd160"
 )
 
@@ -101,19 +103,20 @@ type Transaction struct {
 }
 
 // constructor function to return instace of Transaction
-func NewTrandaction(senderPrivateKey *ecdsa.PrivateKey, senderPublicKey *ecdsa.PublicKey, sender, recipient string, value float32) *Transaction {
+func NewTrandaction(senderPrivateKey *ecdsa.PrivateKey, senderPublicKey *ecdsa.PublicKey, sender string, recipient string, value float32) *Transaction {
 	return &Transaction{
 		senderPrivateKey, senderPublicKey, sender, recipient, value,
 	}
 }
 
 // function to generate sender signature
-func (t *Transaction) GenerateSignature() *Signature {
+func (t *Transaction) GenerateSignature() *utils.Signature {
 	m, _ := json.Marshal(t)
-	h := sha256.Sum256([]byte(m)) // hash of the transaction
+	h := sha256.Sum256([]byte(m)) // hash of the transaction returns an array
 	// sign the transaction
+	// h[:] converts arrays into slice (just a slice view of the array no data is copied)
 	r, s, _ := ecdsa.Sign(rand.Reader, t.senderPrivateKey, h[:])
-	return &Signature{r, s}
+	return &utils.Signature{R: r, S: s}
 }
 
 // special function to json Marshal txn
@@ -127,14 +130,4 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 		Recipient: t.recipientBlockchainAddress,
 		Value:     t.value,
 	})
-}
-
-// signature struct
-type Signature struct {
-	S *big.Int // public key S coordiante
-	R *big.Int // computed by refering to info like the tx hash
-}
-
-func (s *Signature) String() string {
-	return fmt.Sprintf("%x%x", s.R, s.S)
 }
