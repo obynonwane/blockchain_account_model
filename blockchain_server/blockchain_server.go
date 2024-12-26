@@ -27,6 +27,7 @@ func (bcs *BlockchainServer) Port() uint16 {
 }
 
 func (bcs *BlockchainServer) GetBlockchain() *block.Blockchain {
+	// check the cache for key "blockchain"
 	bc, ok := cache["blockchain"]
 	if !ok {
 		// create new minner wallet
