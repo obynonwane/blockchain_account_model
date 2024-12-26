@@ -124,12 +124,13 @@ func (bc *Blockchain) AddTransaction(sender string, recipient string, value floa
 	}
 
 	if bc.VerifyTransactionSignature(senderPublicKey, s, t) {
-		/*
-			if bc.CalculateTotalAmount(sender) < value {
-				log.Println("ERROR: Not enough balance in a wallet")
-				return false
-			}
-		*/
+
+		/*Check if the user have enough balance to initiate transaction */
+		if bc.CalculateTotalAmount(sender) < value {
+			log.Println("ERROR: Not enough balance in a wallet")
+			return false
+		}
+
 		bc.transactionPool = append(bc.transactionPool, t)
 		return true
 	} else {
