@@ -12,14 +12,28 @@ func init() {
 	log.SetPrefix("Blockchain: ")
 }
 func main() {
+	// walletM := wallet.NewWallet()
+	// walletA := wallet.NewWallet()
+	// walletB := wallet.NewWallet()
+
+	// t := wallet.NewTransaction(walletA.PrivateKey(), walletA.PublicKey(), walletA.BlockchainAddress(), walletB.BlockchainAddress(), 1.0)
+	// fmt.Printf("signature %s \n", t.GenerateSignature())
+
+	// //Blockchain Node side
+	// blockchain := block.NewBlockchain(walletM.BlockchainAddress())
+	// isAdded := blockchain.AddTransaction(walletA.BlockchainAddress(), walletB.BlockchainAddress(), 1.0, walletA.PublicKey(), t.GenerateSignature())
+	// fmt.Println("Added?:", isAdded)
+
 	walletM := wallet.NewWallet()
 	walletA := wallet.NewWallet()
 	walletB := wallet.NewWallet()
 
-	t := wallet.NewTrandaction(walletA.PrivateKey(), walletA.PublicKey(), walletA.BlockchainAddress(), walletB.BlockchainAddress(), 1.0)
-	fmt.Printf("signature %s \n", t.GenerateSignature())
+	// Wallet
+	t := wallet.NewTransaction(walletA.PrivateKey(), walletA.PublicKey(), walletA.BlockchainAddress(), walletB.BlockchainAddress(), 1.0)
 
-	//Blockchain
+	// Blockchain
 	blockchain := block.NewBlockchain(walletM.BlockchainAddress())
-	isAdded := blockchain.AddTransaction(walletA.BlockchainAddress(), walletB.BlockchainAddress(), 1.0, walletA.PublicKey(), t.GenerateSignature())
+	isAdded := blockchain.AddTransaction(walletA.BlockchainAddress(), walletB.BlockchainAddress(), 1.0,
+		walletA.PublicKey(), t.GenerateSignature())
+	fmt.Println("Added? ", isAdded)
 }

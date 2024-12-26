@@ -5,10 +5,9 @@ import (
 	"math/big"
 )
 
-// signature struct
 type Signature struct {
-	S *big.Int // public key S coordiante
-	R *big.Int // computed by refering to info like the tx hash
+	R *big.Int
+	S *big.Int
 }
 
 func (s *Signature) String() string {
