@@ -54,10 +54,12 @@ func (b *Block) Hash() [32]byte {
 	return sha256.Sum256([]byte(m))
 }
 
-// special function in GOLANG for creating custom encoding/json
-// which is invoked by json.Marshal() function
-// part of the json.Marshaler interface
-// which allows you to define a custom way to convert your struct into JSON
+/*
+special function in GOLANG for creating custom encoding/json
+which is invoked by json.Marshal() function
+part of the json.Marshaler interface
+which allows you to define a custom way to convert your struct into JSON
+*/
 func (b *Block) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		Timestamp    int64          `json:"timestamp"`
@@ -126,10 +128,12 @@ func (bc *Blockchain) AddTransaction(sender string, recipient string, value floa
 	if bc.VerifyTransactionSignature(senderPublicKey, s, t) {
 
 		/*Check if the user have enough balance to initiate transaction */
-		if bc.CalculateTotalAmount(sender) < value {
-			log.Println("ERROR: Not enough balance in a wallet")
-			return false
-		}
+		/*
+			if bc.CalculateTotalAmount(sender) < value {
+				log.Println("ERROR: Not enough balance in a wallet")
+				return false
+			}
+		*/
 
 		bc.transactionPool = append(bc.transactionPool, t)
 		return true
