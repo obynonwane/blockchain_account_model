@@ -118,7 +118,7 @@ func (t *Transaction) GenerateSignature() *utils.Signature {
 	// sign the transaction
 	// h[:] converts arrays into slice (just a slice view of the array no data is copied)
 	r, s, _ := ecdsa.Sign(rand.Reader, t.senderPrivateKey, h[:])
-	return &utils.Signature{r, s}
+	return &utils.Signature{R: r, S: s}
 }
 
 // special function to json Marshal txn

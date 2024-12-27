@@ -2,8 +2,28 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <title>TITLE</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script>
+            $(function () {
+                $;
+                $.ajax({
+                    url: "/wallet",
+                    type: "POST",
+                    success: function (response) {
+                        $("#public_key").val(response["public_key"]);
+                        $("#private_key").val(response["private_key"]);
+                        $("#blockchain_address").val(
+                            response["blockchain_address"],
+                        );
+                        console.info(response);
+                    },
+                    error: function (error) {
+                        console.error(error);
+                    },
+                });
+            });
+        </script>
     </head>
     <body>
         <div>
