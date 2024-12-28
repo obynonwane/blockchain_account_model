@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -8,6 +10,7 @@ import (
 	"strconv"
 	"text/template"
 
+	"github.com/obynonwane/blockchain_account_model/utils"
 	"github.com/obynonwane/blockchain_account_model/wallet"
 )
 
@@ -52,8 +55,34 @@ func (ws *WalletServer) Wallet(w http.ResponseWriter, req *http.Request) {
 		log.Printf("ERROR: Invalid HTTP Method")
 	}
 }
+func (ws *WalletServer) CreateTransaction(w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodPost:
+		decoder := json.NewDecoder(req.Body)
+		var t wallet.TransactionRequest
+		err := decoder.Decode(&t)
+		if err != nil {
+			io.WriteString(w, string(utils.JsonStatus("fail")))
+			return
+		}
+		if !t.Validate() {
+			log.Println("ERROR: missing fields")
+			io.WriteString(w, string(utils.JsonStatus("fail")))
+			return
+		}
+		fmt.Println(*t.SenderPrivateKey)
+		fmt.Println(*t.SenderBlockchainAddress)
+		fmt.Println(*t.SenderPrivateKey)
+		fmt.Println(*t.RecipientBlockchainAddress)
+		fmt.Println(*t.Value)
+
+	default:
+		log.Printf("ERROR: Invalid HTTP Method")
+	}
+}
 func (ws *WalletServer) Run() {
 	http.HandleFunc("/", ws.Index)
 	http.HandleFunc("/wallet", ws.Wallet)
+	http.HandleFunc("/transaction", ws.CreateTransaction)
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+strconv.Itoa(int(ws.Port())), nil))
 }
