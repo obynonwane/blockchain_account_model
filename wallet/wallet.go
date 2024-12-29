@@ -77,7 +77,7 @@ func (w *Wallet) PublicKey() *ecdsa.PublicKey {
 // returns the hexadecimal string
 func (w *Wallet) PublicKeyStr() string {
 	// Converts the byte slice into its hexadecimal string representation.
-	return fmt.Sprintf("%x%x", w.publicKey.X.Bytes(), w.publicKey.Y.Bytes())
+	return fmt.Sprintf("%064x%064x", w.publicKey.X.Bytes(), w.publicKey.Y.Bytes())
 }
 
 // returns the blockchain address

@@ -15,7 +15,7 @@
                         $("#blockchain_address").val(
                             response["blockchain_address"],
                         );
-                        console.info(response);
+                        console.info(response.message);
                     },
                     error: function (error) {
                         console.error(error);
@@ -49,6 +49,10 @@
                         data: JSON.stringify(transaction_data),
                         success: function (response) {
                             console.info(response);
+                            if ($.parseJSON(response).message === "fail") {
+                                alert("failed");
+                                return;
+                            }
                             alert("Send success");
                         },
                         error: function (error) {

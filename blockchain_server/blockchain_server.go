@@ -1,12 +1,14 @@
 package main
 
 import (
+	"encoding/json"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/obynonwane/blockchain_account_model/block"
+	"github.com/obynonwane/blockchain_account_model/utils"
 	"github.com/obynonwane/blockchain_account_model/wallet"
 )
 
@@ -51,6 +53,38 @@ func (bcs *BlockchainServer) GetChain(w http.ResponseWriter, req *http.Request) 
 		bc := bcs.GetBlockchain()
 		m, _ := bc.MarshalJSON()
 		io.WriteString(w, string(m[:])) /*converts byte slice to string */
+	default:
+		log.Printf("ERROR: Invalid http method")
+	}
+}
+
+func (bcs *BlockchainServer) Transactions(w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodGet:
+	//TODO
+	case http.MethodPost:
+		// decode request from client
+		decoder := json.NewDecoder(req.Body)
+		var t block.TransactionRequest
+		err := decoder.Decode(&t)
+		if err != nil {
+			io.WriteString(w, string(utils.JsonStatus("fail")))
+			return
+		}
+
+		// validate request from client
+		if !t.Validate() {
+			log.Println("ERROR: missing fields")
+			io.WriteString(w, string(utils.JsonStatus("fail")))
+			return
+		}
+
+		// get the public key
+		publicKey := utils.PublicKeyFromString(*t.SenderPublicKey)
+
+		// get the signature
+		signature := utils.SignatureFromString(*t.Signature)
+
 	default:
 		log.Printf("ERROR: Invalid http method")
 	}
