@@ -110,12 +110,13 @@ func NewTransaction(privateKey *ecdsa.PrivateKey, publicKey *ecdsa.PublicKey,
 	return &Transaction{privateKey, publicKey, sender, recipient, value}
 }
 
-// function to generate sender signature
+// function to generate sender signature - i.e encrypting the transaction hash with the private senderPrivateKey
+// And return the signature generated
 func (t *Transaction) GenerateSignature() *utils.Signature {
 	m, _ := json.Marshal(t)
 	h := sha256.Sum256([]byte(m)) // hash of the transaction returns an array
 
-	// sign the transaction
+	// sign the transaction - to generate the signature (requires the transaction hash & the private key)
 	// h[:] converts arrays into slice (just a slice view of the array no data is copied)
 	r, s, _ := ecdsa.Sign(rand.Reader, t.senderPrivateKey, h[:])
 	return &utils.Signature{R: r, S: s}

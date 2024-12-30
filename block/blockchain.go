@@ -167,7 +167,8 @@ func (bc *Blockchain) AddTransaction(sender string, recipient string, value floa
 
 }
 
-// verify the transaction
+// verify the transaction - basically decryption using the pub key, signature and txn hash
+// to verify the validity of the transaction
 // senderPublicKey : sender public key
 // s : sender signature
 // t : the transaction been executed
